@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOIT — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.1);
+    --accent: #c8ff57;
+    --accent2: #ff57a8;
+    --text: #f0f0f0;
+    --muted: rgba(240,240,240,0.45);
+    --input-bg: rgba(255,255,255,0.06);
+    --input-border: rgba(255,255,255,0.12);
+    --input-focus: rgba(200,255,87,0.35);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+    color: var(--text);
+  }
+
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .mesh {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(200,255,87,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% 80%, rgba(255,87,168,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(87,168,255,0.04) 0%, transparent 70%);
+    animation: meshFloat 12s ease-in-out infinite alternate;
+  }
+  @keyframes meshFloat {
+    from { opacity: 0.8; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.04); }
+  }
+
+  .emoji-ball {
+    position: fixed;
+    font-size: 2.2rem;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.18;
+    filter: blur(0.3px);
+    z-index: 1;
+    will-change: transform;
+    transition: opacity .3s;
+  }
+
+  .center {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .card {
+    position: relative;
+    width: min(420px, 92vw);
+    padding: 48px 40px 44px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    backdrop-filter: blur(32px) saturate(1.4);
+    -webkit-backdrop-filter: blur(32px) saturate(1.4);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 32px 80px rgba(0,0,0,0.55),
+      0 0 120px rgba(200,255,87,0.06) inset;
+    animation: cardIn 0.9s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    border-radius: 100%;
+    opacity: 0.7;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.7s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .brand-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), #82e000);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 20px rgba(200,255,87,0.4);
+  }
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 40%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    animation: fadeUp 0.7s 0.3s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-weight: 300;
+    animation: fadeUp 0.7s 0.35s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .field {
+    margin-bottom: 16px;
+    animation: fadeUp 0.7s 0.45s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .field:nth-child(2) { animation-delay: 0.5s; }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  input {
+    width: 100%;
+    padding: 14px 14px 14px 42px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color .25s, background .25s, box-shadow .25s;
+  }
+  input::placeholder { color: rgba(240,240,240,0.25); }
+  input:focus {
+    border-color: rgba(200,255,87,0.6);
+    background: rgba(200,255,87,0.05);
+    box-shadow: 0 0 0 3px var(--input-focus);
+  }
+  input:focus + .input-icon,
+  .input-wrap:focus-within .input-icon { opacity: 1; }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+    animation: fadeUp 0.7s 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .check-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .check-wrap input[type=checkbox] {
+    width: 16px; height: 16px;
+    padding: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .check-wrap span {
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+  .forgot {
+    font-size: 0.83rem;
+    color: var(--accent);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity .2s;
+  }
+  .forgot:hover { opacity: 1; }
+
+  .btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent) 0%, #82e000 100%);
+    color: #0a0a0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 24px rgba(200,255,87,0.35);
+    animation: fadeUp 0.7s 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(200,255,87,0.5); }
+  .btn:hover::after { opacity: 1; }
+  .btn:active { transform: translateY(0); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    animation: fadeUp 0.7s 0.65s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .divider span { flex: 1; height: 1px; background: var(--card-border); }
+  .divider p { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+
+  .socials {
+    display: flex;
+    gap: 10px;
+    animation: fadeUp 0.7s 0.7s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .social-btn {
+    flex: 1;
+    padding: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: background .2s, border-color .2s, transform .15s;
+    text-decoration: none;
+  }
+  .social-btn:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.22);
+    transform: translateY(-1px);
+  }
+
+  .signup-row {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 0.83rem;
+    color: var(--muted);
+    animation: fadeUp 0.7s 0.75s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .signup-row a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .signup-row a:hover { text-decoration: underline; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="center">
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon">✓</div>
+      <div class="brand-name">DOIT</div>
+    </div>
+
+    <h1>Welcome<br><span>back.</span></h1>
+    <p class="subtitle">Sign in to crush your to-do list today ⚡</p>
+
+    <form action="/login" method="post">
+      <div class="field">
+        <label>Username</label>
+        <div class="input-wrap">
+          <input type="text" name="username" placeholder="sameer" autocomplete="off">
+          <span class="input-icon">✉️</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" name="password" placeholder="••••••••">
+          <span class="input-icon">🔒</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="check-wrap">
+          <input type="checkbox" name="remember"> <span>Remember me</span>
+        </label>
+        <a href="/forgot-password" class="forgot">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn">Sign In →</button>
+    </form>
+
+    <div class="divider">
+      <span></span><p>or continue with</p><span></span>
+    </div>
+
+    <div class="socials">
+      <a href="/auth/google" class="social-btn">
+        <svg width="16" height="16" viewBox="0 0 48 48" fill="none">
+          <path d="M43.6 20.5H42V20H24v8h11.3C33.6 33.2 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z" fill="#FFC107"/><path d="M6.3 14.7l6.6 4.8C14.6 15.2 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z" fill="#FF3D00"/><path d="M24 44c5.3 0 10.2-2 13.8-5.3l-6.4-5.4C29.4 35 26.8 36 24 36c-5.3 0-9.6-2.8-11.3-7l-6.6 5.1C9.7 40 16.4 44 24 44z" fill="#4CAF50"/><path d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.4 5.4C37.3 38.4 44 33 44 24c0-1.2-.1-2.4-.4-3.5z" fill="#1976D2"/>
+        </svg>
+        Google
+      </a>
+
+      <a href="/auth/github" class="social-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.8 2.8 1.2 3.4.9.1-.7.4-1.2.7-1.5-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2 0-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.3a11.5 11.5 0 0 1 6 0c2.3-1.6 3.3-1.3 3.3-1.3.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/>
+        </svg>
+        GitHub
+      </a>
+
+      <a href="/auth/facebook" class="social-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
+          <path d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1c0 6 4.4 11 10.1 11.9v-8.4H7.1v-3.5h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.3h3.4l-.5 3.5h-2.9V24C19.6 23.1 24 18.1 24 12.1z"/>
+        </svg>
+        FB
+      </a>
+    </div>
+
+    <p class="signup-row">Don't have an account? <a href="/signup">Sign up free</a></p>
+  </div>
+</div>
+
+<script>
+const emojis = ['✅','📝','⚡','🎯','🔥','💡','🚀','⏰','📌','🌟','💪','🎉','📋','✨','🏆','🎪','🌈','💎','🦋','🍀'];
+const balls = [];
+const count = 28;
+
+for (let i = 0; i < count; i++) {
+  const el = document.createElement('div');
+  el.className = 'emoji-ball';
+  el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  el.style.fontSize = (1.4 + Math.random() * 2.2) + 'rem';
+  document.body.appendChild(el);
+
+  balls.push({
+    el,
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 1.8,
+    vy: (Math.random() - 0.5) * 1.8,
+    rot: Math.random() * 360,
+    rotV: (Math.random() - 0.5) * 1.5,
+  });
+}
+
+function animate() {
+  const W = window.innerWidth, H = window.innerHeight;
+  balls.forEach(b => {
+    b.x += b.vx;
+    b.y += b.vy;
+    b.rot += b.rotV;
+    if (b.x < -50) b.x = W + 40;
+    if (b.x > W + 50) b.x = -40;
+    if (b.y < -50) b.y = H + 40;
+    if (b.y > H + 50) b.y = -40;
+    b.el.style.transform = `translate(${b.x}px, ${b.y}px) rotate(${b.rot}deg)`;
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
